@@ -64,6 +64,11 @@ static void handleSerial() {
             stepperY->move(mmToSteps(val));
             Serial.printf("Y movendo %.2f mm\n", val);
             break;
+        case 'h':
+            stepperX->setCurrentPosition(0);
+            stepperY->setCurrentPosition(0);
+            Serial.println("Home definido: X=0 Y=0");
+            break;
         case 'e':
             enableMotors(true);
             Serial.println("Motores habilitados");
@@ -80,7 +85,7 @@ static void handleSerial() {
             break;
         }
         default:
-            Serial.println("Comandos: x <mm>, y <mm>, e, d, p");
+            Serial.println("Comandos: x <mm>, y <mm>, h, e, d, p");
     }
 }
 

@@ -27,6 +27,6 @@
 //     passos/volta = 200 * 8 = 1600
 //     mm/volta     = 0.8mm              →   STEPS_PER_MM = 2000
 // ---------------------------------------------------------------------------
-#define STEPS_PER_MM      40      // ajustar conforme o mecanismo
+#define STEPS_PER_MM      160     // GT2 20T + DRV8825 1/32 step: 200*32/40mm
 #define MAX_SPEED_MM_S    50.0f
 #define ACCEL_MM_S2       150.0f
