@@ -203,4 +203,4 @@
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/FastAccelStepper.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampCalculator.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampConstAcceleration.h \
- src/config.h
+ src/config.h src/sensor.h

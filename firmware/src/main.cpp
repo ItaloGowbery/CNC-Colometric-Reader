@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <FastAccelStepper.h>
 #include "config.h"
+#include "sensor.h"
 
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepperX = nullptr;
@@ -64,6 +65,15 @@ static void handleSerial() {
             stepperY->move(mmToSteps(val));
             Serial.printf("Y movendo %.2f mm\n", val);
             break;
+        case 'r': {
+            SensorReading s = sensorRead();
+            if (s.ok)
+                Serial.printf("LEITURA 415:%u 445:%u 480:%u 515:%u 555:%u 590:%u 630:%u 680:%u\n",
+                    s.ch415, s.ch445, s.ch480, s.ch515, s.ch555, s.ch590, s.ch630, s.ch680);
+            else
+                Serial.println("SENSOR ERRO");
+            break;
+        }
         case 'h':
             stepperX->setCurrentPosition(0);
             stepperY->setCurrentPosition(0);
@@ -85,19 +95,20 @@ static void handleSerial() {
             break;
         }
         default:
-            Serial.println("Comandos: x <mm>, y <mm>, h, e, d, p");
+            Serial.println("Comandos: x <mm>, y <mm>, r, h, e, d, p");
     }
 }
 
 void setup() {
     Serial.begin(115200);
-    delay(500);
-    Serial.println("=== CNC Colorimetric Reader - Fase 1 ===");
+    while (!Serial) delay(10);
+    Serial.println("=== CNC Colorimetric Reader ===");
     Serial.println("Comandos: x <mm>, y <mm>, e, d, p");
 
     pinMode(ENABLE_PIN, OUTPUT);
     enableMotors(false);
 
+    sensorBegin();
     engine.init();
 
     stepperX = engine.stepperConnectToPin(X_STEP_PIN);
