@@ -203,4 +203,37 @@
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/FastAccelStepper.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampCalculator.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampConstAcceleration.h \
- src/config.h src/sensor.h
+ src/config.h src/sensor.h src/web.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiType.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_wifi/include/esp_smartconfig.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/manager.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/common/protocomm.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/security/protocomm_security.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/wifi_config.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiAP.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiScan.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Client.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiServer.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Server.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/ESPAsyncWebServer.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
+ .pio/libdeps/feather_esp32s3_tft/AsyncTCP@src-7fb2940bccb78b8d2de6915ae328b7fc/src/AsyncTCP.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/lwip/lwip/src/include/lwip/pbuf.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/literals.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/AsyncEventSource.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/AsyncWebSocket.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/WebHandlerImpl.h \
+ .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/WebResponseImpl.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/StreamString.h \
+ .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.h \
+ .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.hpp \
+ .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson/Configuration.hpp

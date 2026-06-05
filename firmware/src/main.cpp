@@ -2,6 +2,7 @@
 #include <FastAccelStepper.h>
 #include "config.h"
 #include "sensor.h"
+#include "web.h"
 
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepperX = nullptr;
@@ -109,6 +110,7 @@ void setup() {
     enableMotors(false);
 
     sensorBegin();
+    webBegin();
     engine.init();
 
     stepperX = engine.stepperConnectToPin(X_STEP_PIN);

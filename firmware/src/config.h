@@ -1,6 +1,12 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
+// WiFi
+// ---------------------------------------------------------------------------
+#define WIFI_SSID  "WiFi_MZNET_2G"
+#define WIFI_PASS  "rede142536"
+
+// ---------------------------------------------------------------------------
 // Fiação: conectar jumpers do socket Arduino do CNC Shield ao Feather
 //
 //   Shield (socket)  →  ESP32-S3 Feather
