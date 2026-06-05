@@ -29,15 +29,29 @@ static void waitMotors() {
 //   p        — imprime posição atual em mm
 // ---------------------------------------------------------------------------
 static void handleSerial() {
-    if (!Serial.available()) return;
+    static String buffer = "";
 
-    String line = Serial.readStringUntil('\n');
-    line.trim();
-    if (line.isEmpty()) return;
+    bool lineReady = false;
+    while (Serial.available()) {
+        char c = (char)Serial.read();
+        if (c == '\r' || c == '\n') {
+            buffer.trim();
+            if (!buffer.isEmpty()) { lineReady = true; break; }
+        } else if (c == '\b' || c == 0x7f) {  // backspace / DEL
+            if (buffer.length() > 0) buffer.remove(buffer.length() - 1);
+        } else {
+            buffer += c;
+        }
+    }
+
+    if (!lineReady) return;
+    String line = buffer;
+    buffer = "";
+    while (Serial.available()) Serial.read();  // descarta sobras (\n, lixo)
 
     char cmd = line.charAt(0);
-    float val = 0;
-    if (line.length() > 1) val = line.substring(2).toFloat();
+    int sp = line.indexOf(' ');
+    float val = (sp >= 0) ? line.substring(sp + 1).toFloat() : 0;
 
     switch (cmd) {
         case 'x':
@@ -103,4 +117,9 @@ void setup() {
 
 void loop() {
     handleSerial();
+
+    static bool wasRunning = false;
+    bool running = stepperX->isRunning() || stepperY->isRunning();
+    if (wasRunning && !running) Serial.println("DONE");
+    wasRunning = running;
 }
