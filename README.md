@@ -33,8 +33,8 @@ Edite `firmware/src/config.h` conforme o seu mecanismo de transmissão:
 
 | Mecanismo | Microstepping DRV8825 | STEPS_PER_MM |
 |---|---|---|
-| Correia GT2 + polia 20 dentes | 1/8 step | 40 |
-| Fuso M5 (passo 0.8 mm) | 1/8 step | 2000 |
+| Correia GT2 + polia 20 dentes | 1/32 step | 160 |
+| Fuso M5 (passo 0.8 mm) | 1/32 step | 6400 |
 
 O jumper de microstepping fica nos pinos M0/M1/M2 de cada driver no CNC Shield.
 
