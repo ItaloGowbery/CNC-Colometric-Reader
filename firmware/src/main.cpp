@@ -4,6 +4,7 @@
 #include "sensor.h"
 #include "scan.h"
 #include "web.h"
+#include "display.h"
 
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepperX = nullptr;
@@ -116,6 +117,7 @@ void setup() {
     pinMode(ENABLE_PIN, OUTPUT);
     enableMotors(false);
 
+    displayBegin();
     sensorBegin();
     webBegin();
     engine.init();
@@ -148,4 +150,12 @@ void loop() {
     bool running = stepperX->isRunning() || stepperY->isRunning();
     if (wasRunning && !running && scanState == SCAN_IDLE) Serial.println("DONE");
     wasRunning = running;
+
+    static uint32_t lastDisplay = 0;
+    if (millis() - lastDisplay >= 300) {
+        float x = stepperX->getCurrentPosition() / (float)STEPS_PER_MM;
+        float y = stepperY->getCurrentPosition() / (float)STEPS_PER_MM;
+        displayUpdate(x, y, running);
+        lastDisplay = millis();
+    }
 }

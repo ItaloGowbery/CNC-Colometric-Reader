@@ -64,10 +64,10 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <div class="card">
     <h3>Configuração da Placa</h3>
     <div class="row">
-      <div class="field"><label>Linhas</label><input type="number" id="rows" value="8" min="1" max="16"></div>
+      <div class="field"><label>Linhas</label><input type="number" id="rows" value="12" min="1" max="16"></div>
       <div class="field"><label>Colunas</label><input type="number" id="cols" value="12" min="1" max="24"></div>
-      <div class="field"><label>Espaç. X (mm)</label><input type="number" id="spX" value="9" step="0.1" min="0.1"></div>
-      <div class="field"><label>Espaç. Y (mm)</label><input type="number" id="spY" value="9" step="0.1" min="0.1"></div>
+      <div class="field"><label>Espaç. X (mm)</label><input type="number" id="spX" value="15" step="0.1" min="0.1"></div>
+      <div class="field"><label>Espaç. Y (mm)</label><input type="number" id="spY" value="15" step="0.1" min="0.1"></div>
       <button class="btn btn-primary" onclick="buildGrid()">Aplicar</button>
     </div>
   </div>
@@ -360,7 +360,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         data.forEach((r,i)=>{
           const tr=document.createElement('tr');
           tr.style.background=i%2?'#f5f5f5':'#fff';
-          const label=letters[r.row]+(r.col+1);
+          const label=letters[r.row]+r.col;
           tr.innerHTML='<td style="padding:5px 8px;font-weight:600">'+label+'</td>'+
             '<td style="padding:5px 8px;text-align:center">'+(r.point+1)+'</td>'+
             [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']]
@@ -377,7 +377,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         const letters='ABCDEFGHIJKLMNOP';
         let csv='Poco,Ponto,415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm\n';
         data.forEach(r=>{
-          csv+=letters[r.row]+(r.col+1)+','+(r.point+1)+','+
+          csv+=letters[r.row]+r.col+','+(r.point+1)+','+
             [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']].join(',')+'\n';
         });
         const a=document.createElement('a');
