@@ -1,6 +1,6 @@
 .pio/build/feather_esp32s3_tft/FrameworkArduino/HardwareSerial.cpp.o: \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/HardwareSerial.cpp \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/soc_caps.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/brownout_caps.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/cpu_caps.h \

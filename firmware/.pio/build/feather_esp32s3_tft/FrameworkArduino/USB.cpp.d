@@ -121,7 +121,7 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/WString.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/pgmspace.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Printable.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_hw_support/include/esp_sleep.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/touch_sensor_types.h \

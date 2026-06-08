@@ -91,7 +91,7 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-uart.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/uart_types.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-gpio.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-touch.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/gpio.h \
@@ -236,4 +236,18 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/StreamString.h \
  .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.h \
  .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.hpp \
- .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson/Configuration.hpp
+ .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson/Configuration.hpp \
+ src/display.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_GFX.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/gfxfont.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_I2CDevice.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_SPIDevice.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST7789.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST77xx.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_SPITFT.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_GFX.h \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_SPITFT_Macros.h

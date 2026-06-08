@@ -1,5 +1,5 @@
 .pio/build/feather_esp32s3_tft/FrameworkArduinoVariant/variant.cpp.o: \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/variant.cpp \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/variant.cpp \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-gpio.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_system/include/esp_system.h \
@@ -108,5 +108,5 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-psram.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-rgb-led.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-cpu.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h

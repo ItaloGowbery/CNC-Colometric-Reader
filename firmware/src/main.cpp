@@ -110,7 +110,7 @@ static void handleSerial() {
 
 void setup() {
     Serial.begin(115200);
-    while (!Serial) delay(10);
+    { uint32_t t = millis(); while (!Serial && millis() - t < 3000) delay(10); }
     Serial.println("=== CNC Colorimetric Reader ===");
     Serial.println("Comandos: x <mm>, y <mm>, e, d, p");
 
@@ -155,7 +155,7 @@ void loop() {
     if (millis() - lastDisplay >= 300) {
         float x = stepperX->getCurrentPosition() / (float)STEPS_PER_MM;
         float y = stepperY->getCurrentPosition() / (float)STEPS_PER_MM;
-        displayUpdate(x, y, running);
+        displayUpdate(x, y);
         lastDisplay = millis();
     }
 }

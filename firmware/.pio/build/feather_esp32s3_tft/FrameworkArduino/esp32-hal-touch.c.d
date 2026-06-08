@@ -94,7 +94,7 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-uart.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/uart_types.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-gpio.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/gpio.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_common/include/esp_types.h \

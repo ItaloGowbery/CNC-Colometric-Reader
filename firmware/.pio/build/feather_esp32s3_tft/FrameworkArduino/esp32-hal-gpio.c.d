@@ -107,7 +107,7 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-psram.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-rgb-led.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-cpu.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_tft/pins_arduino.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/variants/adafruit_feather_esp32s3_reversetft/pins_arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/gpio_hal.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/esp32s3/include/hal/gpio_ll.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/rtc_cntl_reg.h \

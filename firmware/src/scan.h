@@ -101,7 +101,7 @@ inline void scanLoop() {
 
 inline const char* scanStateName() {
     switch (scanState) {
-        case SCAN_IDLE:    return "idle";
+        case SCAN_IDLE:    return "waiting";
         case SCAN_MOVING:  return "moving";
         case SCAN_READING: return "reading";
         case SCAN_DONE:    return "done";
