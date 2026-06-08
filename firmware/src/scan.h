@@ -11,6 +11,7 @@ struct PointOffset{ float dx; float dy; };  // offset do canto sup-esq do poço 
 
 struct ScanResult {
     WellPos  pos;
+    uint8_t  pointIdx;
     uint16_t ch415,ch445,ch480,ch515,ch555,ch590,ch630,ch680;
     bool     ok;
 };
@@ -20,21 +21,21 @@ enum ScanState { SCAN_IDLE, SCAN_MOVING, SCAN_READING, SCAN_DONE };
 extern class FastAccelStepper *stepperX;
 extern class FastAccelStepper *stepperY;
 
-static ScanState   scanState    = SCAN_IDLE;
+static ScanState   scanState       = SCAN_IDLE;
 static WellPos     scanQueue[MAX_WELLS];
-static ScanResult  scanResults[MAX_WELLS];
+static ScanResult  scanResults[MAX_WELLS * MAX_POINTS];
 static PointOffset scanPoints[MAX_POINTS];
-static int         scanTotal    = 0;
-static int         scanWellIdx  = 0;
-static int         scanPointIdx = 0;
-static int         scanNumPts   = 1;
-static float       scanSpacingX = 9.0f;
-static float       scanSpacingY = 9.0f;
-static uint32_t    _acc[8];
+static int         scanTotal       = 0;
+static int         scanResultCount = 0;
+static int         scanWellIdx     = 0;
+static int         scanPointIdx    = 0;
+static int         scanNumPts      = 1;
+static float       scanSpacingX    = 9.0f;
+static float       scanSpacingY    = 9.0f;
 
 static void _moveToPoint(int wi, int pi) {
-    float wx = constrain((scanQueue[wi].col - 1) * scanSpacingX + scanPoints[pi].dx, 0.0f, X_MAX_MM);
-    float wy = constrain( scanQueue[wi].row      * scanSpacingY + scanPoints[pi].dy, 0.0f, Y_MAX_MM);
+    float wx = constrain(X_ORIGIN_MM + (scanQueue[wi].col - 1) * scanSpacingX + scanPoints[pi].dx, 0.0f, X_MAX_MM);
+    float wy = constrain(Y_ORIGIN_MM +  scanQueue[wi].row      * scanSpacingY + scanPoints[pi].dy, 0.0f, Y_MAX_MM);
     stepperX->moveTo((int32_t)(wx * STEPS_PER_MM));
     stepperY->moveTo((int32_t)(wy * STEPS_PER_MM));
 }
@@ -46,11 +47,11 @@ inline void scanStart(WellPos *wells, int wCount,
     for (int i = 0; i < pCount && i < MAX_POINTS; i++) scanPoints[i] = points[i];
     scanTotal    = min(wCount, MAX_WELLS);
     scanNumPts   = min(pCount, MAX_POINTS);
-    scanWellIdx  = 0;
-    scanPointIdx = 0;
-    scanSpacingX = spX;
-    scanSpacingY = spY;
-    memset(_acc, 0, sizeof(_acc));
+    scanWellIdx     = 0;
+    scanPointIdx    = 0;
+    scanResultCount = 0;
+    scanSpacingX    = spX;
+    scanSpacingY    = spY;
     digitalWrite(ENABLE_PIN, LOW);
     _moveToPoint(0, 0);
     scanState = SCAN_MOVING;
@@ -70,27 +71,18 @@ inline void scanLoop() {
 
         case SCAN_READING: {
             SensorReading r = sensorRead();
-            _acc[0]+=r.ch415; _acc[1]+=r.ch445;
-            _acc[2]+=r.ch480; _acc[3]+=r.ch515;
-            _acc[4]+=r.ch555; _acc[5]+=r.ch590;
-            _acc[6]+=r.ch630; _acc[7]+=r.ch680;
+            scanResults[scanResultCount++] = {
+                scanQueue[scanWellIdx], (uint8_t)scanPointIdx,
+                r.ch415, r.ch445, r.ch480, r.ch515,
+                r.ch555, r.ch590, r.ch630, r.ch680,
+                r.ok
+            };
             scanPointIdx++;
 
             if (scanPointIdx >= scanNumPts) {
-                int n = scanNumPts;
-                scanResults[scanWellIdx] = {
-                    scanQueue[scanWellIdx],
-                    (uint16_t)(_acc[0]/n),(uint16_t)(_acc[1]/n),
-                    (uint16_t)(_acc[2]/n),(uint16_t)(_acc[3]/n),
-                    (uint16_t)(_acc[4]/n),(uint16_t)(_acc[5]/n),
-                    (uint16_t)(_acc[6]/n),(uint16_t)(_acc[7]/n),
-                    true
-                };
                 Serial.printf("[SCAN] Poço %d/%d OK\n", scanWellIdx+1, scanTotal);
                 scanWellIdx++;
                 scanPointIdx = 0;
-                memset(_acc, 0, sizeof(_acc));
-
                 if (scanWellIdx >= scanTotal) {
                     scanState = SCAN_DONE;
                     Serial.println("[SCAN] Concluído");

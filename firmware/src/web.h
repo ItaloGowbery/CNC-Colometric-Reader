@@ -154,6 +154,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         <thead>
           <tr style="background:#e8eaf6">
             <th style="padding:6px 8px;text-align:left">Poço</th>
+            <th style="padding:6px 8px">Ponto</th>
             <th style="padding:6px 8px">415nm</th><th style="padding:6px 8px">445nm</th>
             <th style="padding:6px 8px">480nm</th><th style="padding:6px 8px">515nm</th>
             <th style="padding:6px 8px">555nm</th><th style="padding:6px 8px">590nm</th>
@@ -359,8 +360,9 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         data.forEach((r,i)=>{
           const tr=document.createElement('tr');
           tr.style.background=i%2?'#f5f5f5':'#fff';
-          const label=letters[r.row]+r.col;
+          const label=letters[r.row]+(r.col+1);
           tr.innerHTML='<td style="padding:5px 8px;font-weight:600">'+label+'</td>'+
+            '<td style="padding:5px 8px;text-align:center">'+(r.point+1)+'</td>'+
             [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']]
             .map(v=>'<td style="padding:5px 8px;text-align:center">'+v+'</td>').join('');
           body.appendChild(tr);
@@ -373,9 +375,9 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
     function exportCSV() {
       fetch('/api/results').then(r=>r.json()).then(data=>{
         const letters='ABCDEFGHIJKLMNOP';
-        let csv='Poco,415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm\n';
+        let csv='Poco,Ponto,415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm\n';
         data.forEach(r=>{
-          csv+=letters[r.row]+(r.col+1)+','+
+          csv+=letters[r.row]+(r.col+1)+','+(r.point+1)+','+
             [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']].join(',')+'\n';
         });
         const a=document.createElement('a');
@@ -482,18 +484,19 @@ inline void webBegin() {
     server.on("/api/results", HTTP_GET, [](AsyncWebServerRequest *req) {
         DynamicJsonDocument doc(16384);
         JsonArray arr = doc.to<JsonArray>();
-        for (int i = 0; i < scanWellIdx; i++) {
+        for (int i = 0; i < scanResultCount; i++) {
             JsonObject o = arr.createNestedObject();
-            o["row"] = scanResults[i].pos.row;
-            o["col"] = scanResults[i].pos.col;
-            o["415"] = scanResults[i].ch415;
-            o["445"] = scanResults[i].ch445;
-            o["480"] = scanResults[i].ch480;
-            o["515"] = scanResults[i].ch515;
-            o["555"] = scanResults[i].ch555;
-            o["590"] = scanResults[i].ch590;
-            o["630"] = scanResults[i].ch630;
-            o["680"] = scanResults[i].ch680;
+            o["row"]   = scanResults[i].pos.row;
+            o["col"]   = scanResults[i].pos.col;
+            o["point"] = scanResults[i].pointIdx;
+            o["415"]   = scanResults[i].ch415;
+            o["445"]   = scanResults[i].ch445;
+            o["480"]   = scanResults[i].ch480;
+            o["515"]   = scanResults[i].ch515;
+            o["555"]   = scanResults[i].ch555;
+            o["590"]   = scanResults[i].ch590;
+            o["630"]   = scanResults[i].ch630;
+            o["680"]   = scanResults[i].ch680;
         }
         String out; serializeJson(doc, out);
         req->send(200, "application/json", out);

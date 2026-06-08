@@ -34,8 +34,11 @@
 //     mm/volta     = 0.8mm              →   STEPS_PER_MM = 2000
 // ---------------------------------------------------------------------------
 #define STEPS_PER_MM      160     // GT2 20T + DRV8825 1/32 step: 200*32/40mm
-#define MAX_SPEED_MM_S    50.0f
+#define MAX_SPEED_MM_S    25.0f
 #define ACCEL_MM_S2       150.0f
 
 #define X_MAX_MM          210.0f
 #define Y_MAX_MM          290.0f
+
+#define X_ORIGIN_MM         5.0f   // distância do home até a quina do primeiro poço
+#define Y_ORIGIN_MM         5.0f
