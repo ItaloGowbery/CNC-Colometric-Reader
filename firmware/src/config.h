@@ -37,5 +37,5 @@
 #define MAX_SPEED_MM_S    50.0f
 #define ACCEL_MM_S2       150.0f
 
-#define X_MAX_MM          290.0f
-#define Y_MAX_MM          210.0f
+#define X_MAX_MM          210.0f
+#define Y_MAX_MM          290.0f
