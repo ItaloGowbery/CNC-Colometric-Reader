@@ -442,9 +442,15 @@ inline void webBegin() {
             deserializeJson(doc, data, len);
             float x = doc["x"] | 0.0f;
             float y = doc["y"] | 0.0f;
-            digitalWrite(ENABLE_PIN, LOW);  // garante motores habilitados
-            if (x != 0) stepperX->move((int32_t)(x * STEPS_PER_MM));
-            if (y != 0) stepperY->move((int32_t)(y * STEPS_PER_MM));
+            digitalWrite(ENABLE_PIN, LOW);
+            if (x != 0) {
+                float tgt = constrain(stepperX->getCurrentPosition() / (float)STEPS_PER_MM + x, 0.0f, X_MAX_MM);
+                stepperX->moveTo((int32_t)(tgt * STEPS_PER_MM));
+            }
+            if (y != 0) {
+                float tgt = constrain(stepperY->getCurrentPosition() / (float)STEPS_PER_MM + y, 0.0f, Y_MAX_MM);
+                stepperY->moveTo((int32_t)(tgt * STEPS_PER_MM));
+            }
             req->send(200, "application/json", "{\"status\":\"ok\"}");
         }
     );

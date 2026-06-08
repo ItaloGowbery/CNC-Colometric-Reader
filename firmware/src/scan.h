@@ -33,8 +33,8 @@ static float       scanSpacingY = 9.0f;
 static uint32_t    _acc[8];
 
 static void _moveToPoint(int wi, int pi) {
-    float wx = (scanQueue[wi].col - 1) * scanSpacingX + scanPoints[pi].dx;
-    float wy =  scanQueue[wi].row      * scanSpacingY + scanPoints[pi].dy;
+    float wx = constrain((scanQueue[wi].col - 1) * scanSpacingX + scanPoints[pi].dx, 0.0f, X_MAX_MM);
+    float wy = constrain( scanQueue[wi].row      * scanSpacingY + scanPoints[pi].dy, 0.0f, Y_MAX_MM);
     stepperX->moveTo((int32_t)(wx * STEPS_PER_MM));
     stepperY->moveTo((int32_t)(wy * STEPS_PER_MM));
 }

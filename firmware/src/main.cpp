@@ -57,16 +57,22 @@ static void handleSerial() {
     float val = (sp >= 0) ? line.substring(sp + 1).toFloat() : 0;
 
     switch (cmd) {
-        case 'x':
+        case 'x': {
             enableMotors(true);
-            stepperX->move(mmToSteps(val));
-            Serial.printf("X movendo %.2f mm\n", val);
+            float curX = stepperX->getCurrentPosition() / (float)STEPS_PER_MM;
+            float tgtX = constrain(curX + val, 0.0f, X_MAX_MM);
+            stepperX->moveTo(mmToSteps(tgtX));
+            Serial.printf("X -> %.2f mm\n", tgtX);
             break;
-        case 'y':
+        }
+        case 'y': {
             enableMotors(true);
-            stepperY->move(mmToSteps(val));
-            Serial.printf("Y movendo %.2f mm\n", val);
+            float curY = stepperY->getCurrentPosition() / (float)STEPS_PER_MM;
+            float tgtY = constrain(curY + val, 0.0f, Y_MAX_MM);
+            stepperY->moveTo(mmToSteps(tgtY));
+            Serial.printf("Y -> %.2f mm\n", tgtY);
             break;
+        }
         case 'r': {
             SensorReading s = sensorRead();
             if (s.ok)
