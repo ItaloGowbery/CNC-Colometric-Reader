@@ -72,13 +72,13 @@ O `--monitor` é ativado automaticamente após o upload — você verá o prompt
 
 - [x] **Fase 1** — Controle básico dos motores via serial
 - [ ] **Fase 2** — Fim de curso, homing e coordenadas absolutas
-- [ ] **Fase 3** — Integração do sensor AS7341
-- [ ] **Fase 4** — Rotina de scan da matriz de poços
-- [ ] **Fase 5** — Interface web (controle e configuração)
-- [ ] **Fase 6** — Interface web (visualização e exportação de dados)
+- [x] **Fase 3** — Integração do sensor AS7341
+- [x] **Fase 4** — Rotina de scan da matriz de poços
+- [x] **Fase 5** — Interface web (controle e configuração)
+- [x] **Fase 6** — Interface web (visualização e exportação de dados)
 - [ ] **Fase 7** — Display TFT local
 
-## Comandos serial (Fase 1)
+## Comandos serial
 
 Com o monitor serial aberto (115200 baud):
 
@@ -89,3 +89,24 @@ Com o monitor serial aberto (115200 baud):
 | `e` | Habilita os motores |
 | `d` | Desabilita os motores |
 | `p` | Imprime a posição atual de X e Y em mm |
+
+## Interface Web
+
+Após o upload, conecte-se à rede Wi-Fi do dispositivo e acesse o IP exibido no serial. A interface permite:
+
+- **Configuração da matriz** — defina linhas, colunas e espaçamento (mm) entre poços
+- **Seleção de poços** — clique nos poços da grade para selecionar quais serão escaneados
+- **Pontos por poço** — configure quantos pontos de leitura por poço, margem e tamanho do poço; uma prévia SVG mostra a distribuição dos pontos
+- **Movimento manual** — controle de jog com passos de 0.1, 1, 5 ou 10 mm em X e Y
+- **Scan** — inicia o escaneamento dos poços selecionados com barra de progresso em tempo real
+- **Resultados** — tabela com os 8 canais espectrais do AS7341 por poço, com exportação em CSV
+
+## API REST
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/status` | Posição atual, estado dos motores e progresso do scan |
+| `POST` | `/api/cmd` | Envia comando serial (`e`, `d`, `h`, `x <mm>`, `y <mm>`) |
+| `POST` | `/api/move` | Move relativamente em X e/ou Y (JSON: `{x, y}` em mm) |
+| `POST` | `/api/scan` | Inicia o scan (JSON: `{wells, spacingX, spacingY, points}`) |
+| `GET` | `/api/results` | Retorna os resultados espectrais de todos os poços escaneados |
