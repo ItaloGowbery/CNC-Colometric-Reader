@@ -203,7 +203,7 @@
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/FastAccelStepper.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampCalculator.h \
  .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampConstAcceleration.h \
- src/config.h src/sensor.h src/web.h \
+ src/config.h src/sensor.h src/scan.h src/web.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \

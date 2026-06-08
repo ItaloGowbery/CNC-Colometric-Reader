@@ -2,6 +2,7 @@
 #include <FastAccelStepper.h>
 #include "config.h"
 #include "sensor.h"
+#include "scan.h"
 #include "web.h"
 
 FastAccelStepperEngine engine = FastAccelStepperEngine();
@@ -135,9 +136,10 @@ void setup() {
 
 void loop() {
     handleSerial();
+    scanLoop();
 
     static bool wasRunning = false;
     bool running = stepperX->isRunning() || stepperY->isRunning();
-    if (wasRunning && !running) Serial.println("DONE");
+    if (wasRunning && !running && scanState == SCAN_IDLE) Serial.println("DONE");
     wasRunning = running;
 }

@@ -4,6 +4,7 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 #include "config.h"
+#include "scan.h"
 
 static AsyncWebServer server(80);
 
@@ -72,6 +73,26 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class="card">
+    <h3>Pontos por Poço</h3>
+    <div class="row" style="margin-bottom:14px">
+      <div class="field"><label>Nº de Pontos</label><input type="number" id="numPts" value="1" min="1" max="25" oninput="updatePreview()"></div>
+      <div class="field"><label>Margem (mm)</label><input type="number" id="margin" value="1" step="0.1" min="0" max="4.9" oninput="updatePreview()"></div>
+      <div class="field"><label>Tamanho poço (mm)</label><input type="number" id="wellSize" value="10" step="0.1" min="1" oninput="updatePreview()"></div>
+    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:6px">PRÉVIA DO POÇO</div>
+        <svg id="preview" width="180" height="180" style="border:1px solid #ddd;border-radius:4px;background:#fafafa">
+          <rect id="pvWell" x="10" y="10" width="160" height="160" fill="#e8eaf6" stroke="#9fa8da" stroke-width="2"/>
+          <rect id="pvMargin" x="26" y="26" width="128" height="128" fill="none" stroke="#ef9a9a" stroke-width="1" stroke-dasharray="4,3"/>
+          <g id="pvPoints"></g>
+        </svg>
+      </div>
+      <div id="ptsList" style="font-size:12px;color:#555;max-height:180px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h3>Poços</h3>
     <div class="actions" style="margin-bottom:10px">
       <button class="btn btn-secondary" onclick="selAll()">Selecionar Todos</button>
@@ -82,17 +103,141 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class="card">
+    <h3>Movimento Manual</h3>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#666;font-weight:600">PASSO (mm)&nbsp;</label>
+      <span id="steps">
+        <button class="btn btn-secondary step-btn" onclick="setStep(0.1)">0.1</button>
+        <button class="btn btn-primary  step-btn" onclick="setStep(1)">1</button>
+        <button class="btn btn-secondary step-btn" onclick="setStep(5)">5</button>
+        <button class="btn btn-secondary step-btn" onclick="setStep(10)">10</button>
+      </span>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+      <div>
+        <div style="text-align:center;margin-bottom:4px;font-size:11px;color:#666;font-weight:600">EIXO X</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-primary" onclick="move(-step,0)">&#8592; X-</button>
+          <button class="btn btn-primary" onclick="move(step,0)">X+ &#8594;</button>
+        </div>
+      </div>
+      <div>
+        <div style="text-align:center;margin-bottom:4px;font-size:11px;color:#666;font-weight:600">EIXO Y</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-primary" onclick="move(0,-step)">&#8593; Y-</button>
+          <button class="btn btn-primary" onclick="move(0,step)">Y+ &#8595;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <h3>Controle</h3>
     <div class="actions">
       <button class="btn btn-secondary" onclick="sendCmd('h')">Definir Home Aqui</button>
       <button class="btn btn-secondary" onclick="sendCmd('e')">Habilitar Motores</button>
       <button class="btn btn-secondary" onclick="sendCmd('d')">Desabilitar Motores</button>
-      <button class="btn btn-success" id="scanBtn" disabled>Escanear Selecionados</button>
+      <button class="btn btn-success" id="scanBtn" disabled onclick="startScan()">Escanear Selecionados</button>
     </div>
+    <div id="scanProgress" style="display:none;margin-top:12px">
+      <div style="background:#e0e0e0;border-radius:6px;height:10px;overflow:hidden">
+        <div id="progressBar" style="background:#388e3c;height:100%;width:0%;transition:.3s"></div>
+      </div>
+      <p id="progressTxt" style="font-size:13px;color:#555;margin-top:6px"></p>
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display:none">
+    <h3>Resultados</h3>
+    <div style="overflow-x:auto">
+      <table id="resultsTable" style="border-collapse:collapse;font-size:12px;width:100%">
+        <thead>
+          <tr style="background:#e8eaf6">
+            <th style="padding:6px 8px;text-align:left">Poço</th>
+            <th style="padding:6px 8px">415nm</th><th style="padding:6px 8px">445nm</th>
+            <th style="padding:6px 8px">480nm</th><th style="padding:6px 8px">515nm</th>
+            <th style="padding:6px 8px">555nm</th><th style="padding:6px 8px">590nm</th>
+            <th style="padding:6px 8px">630nm</th><th style="padding:6px 8px">680nm</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <button class="btn btn-secondary" style="margin-top:10px" onclick="exportCSV()">Exportar CSV</button>
   </div>
 
   <script>
     const sel = new Set();
+    let step = 1;
+
+    function computePoints(N, wellSize, margin) {
+      const usable = wellSize - 2 * margin;
+      if (N === 1 || usable <= 0) return [{x: wellSize/2, y: wellSize/2}];
+      let rows = 1, cols = N;
+      for (let r = 1; r <= N; r++) {
+        const c = Math.ceil(N / r);
+        if (r * c >= N && Math.abs(r-c) < Math.abs(rows-cols)) { rows=r; cols=c; }
+      }
+      const pts = [];
+      let count = 0;
+      for (let r = 0; r < rows && count < N; r++) {
+        for (let c = 0; c < cols && count < N; c++) {
+          const x = margin + (cols > 1 ? c*usable/(cols-1) : usable/2);
+          const y = margin + (rows > 1 ? r*usable/(rows-1) : usable/2);
+          pts.push({x, y}); count++;
+        }
+      }
+      return pts;
+    }
+
+    function updatePreview() {
+      const N    = parseInt(document.getElementById('numPts').value)   || 1;
+      const mg   = parseFloat(document.getElementById('margin').value) || 0;
+      const ws   = parseFloat(document.getElementById('wellSize').value)|| 10;
+      const scale = 160 / ws;   // pixels per mm (160px usable in 180px SVG)
+      const off   = 10;         // SVG padding
+
+      // margin rect
+      const mx = off + mg * scale, my = off + mg * scale;
+      const ms = (ws - 2*mg) * scale;
+      document.getElementById('pvMargin').setAttribute('x', mx);
+      document.getElementById('pvMargin').setAttribute('y', my);
+      document.getElementById('pvMargin').setAttribute('width',  Math.max(0,ms));
+      document.getElementById('pvMargin').setAttribute('height', Math.max(0,ms));
+
+      const pts = computePoints(N, ws, mg);
+      const g   = document.getElementById('pvPoints');
+      g.innerHTML = '';
+      let list = '<b>Pontos (mm):</b><br>';
+      pts.forEach((p, i) => {
+        const cx = off + p.x * scale, cy = off + p.y * scale;
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+        c.setAttribute('r', 5); c.setAttribute('fill','#1976d2');
+        c.setAttribute('opacity','0.85');
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x', cx); t.setAttribute('y', cy+3.5);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('font-size','7'); t.setAttribute('fill','#fff');
+        t.textContent = i+1;
+        g.appendChild(c); g.appendChild(t);
+        list += (i+1)+': ('+p.x.toFixed(2)+', '+p.y.toFixed(2)+')<br>';
+      });
+      document.getElementById('ptsList').innerHTML = list;
+    }
+
+    function setStep(v) {
+      step = v;
+      document.querySelectorAll('.step-btn').forEach(b => {
+        b.className = 'btn btn-secondary step-btn';
+      });
+      event.target.className = 'btn btn-primary step-btn';
+    }
+
+    function move(x, y) {
+      fetch('/api/move', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({x, y})});
+    }
 
     function buildGrid() {
       const R = parseInt(document.getElementById('rows').value);
@@ -163,15 +308,84 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         .then(r=>r.json()).then(d=>console.log(d));
     }
 
+    let scanning = false;
+
+    function startScan() {
+      const spX = parseFloat(document.getElementById('spX').value);
+      const spY = parseFloat(document.getElementById('spY').value);
+      const N   = parseInt(document.getElementById('numPts').value) || 1;
+      const mg  = parseFloat(document.getElementById('margin').value) || 0;
+      const ws  = parseFloat(document.getElementById('wellSize').value) || 10;
+      const wells = Array.from(sel).map(id => {
+        const [r,c] = id.split(',');
+        return {r:parseInt(r), c:parseInt(c)};
+      });
+      const points = computePoints(N, ws, mg);
+      fetch('/api/scan', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({wells, spacingX:spX, spacingY:spY, points})})
+        .then(r=>r.json()).then(()=>{
+          scanning = true;
+          document.getElementById('scanProgress').style.display='block';
+          document.getElementById('resultsCard').style.display='none';
+          document.getElementById('resultsBody').innerHTML='';
+          document.getElementById('scanBtn').disabled=true;
+        });
+    }
+
     function pollStatus(){
       fetch('/api/status').then(r=>r.json()).then(d=>{
         document.getElementById('sx').textContent=d.x.toFixed(2);
         document.getElementById('sy').textContent=d.y.toFixed(2);
         document.getElementById('sm').textContent=d.running?'Movendo':'Parado';
+        if (scanning) {
+          const pct = d.scanTotal>0 ? (d.scanIdx/d.scanTotal*100) : 0;
+          document.getElementById('progressBar').style.width=pct+'%';
+          document.getElementById('progressTxt').textContent=
+            d.scan==='done'
+              ? 'Scan concluído!'
+              : 'Poço '+d.scanIdx+' / '+d.scanTotal;
+          if (d.scan==='done') {
+            scanning=false;
+            loadResults();
+          }
+        }
       }).catch(()=>{});
     }
 
+    function loadResults() {
+      fetch('/api/results').then(r=>r.json()).then(data=>{
+        const body=document.getElementById('resultsBody');
+        const letters='ABCDEFGHIJKLMNOP';
+        data.forEach((r,i)=>{
+          const tr=document.createElement('tr');
+          tr.style.background=i%2?'#f5f5f5':'#fff';
+          const label=letters[r.row]+r.col;
+          tr.innerHTML='<td style="padding:5px 8px;font-weight:600">'+label+'</td>'+
+            [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']]
+            .map(v=>'<td style="padding:5px 8px;text-align:center">'+v+'</td>').join('');
+          body.appendChild(tr);
+        });
+        document.getElementById('resultsCard').style.display='block';
+        document.getElementById('scanBtn').disabled=sel.size===0;
+      });
+    }
+
+    function exportCSV() {
+      fetch('/api/results').then(r=>r.json()).then(data=>{
+        const letters='ABCDEFGHIJKLMNOP';
+        let csv='Poco,415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm\n';
+        data.forEach(r=>{
+          csv+=letters[r.row]+(r.col+1)+','+
+            [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']].join(',')+'\n';
+        });
+        const a=document.createElement('a');
+        a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+        a.download='scan_results.csv';a.click();
+      });
+    }
+
     buildGrid();
+    updatePreview();
     setInterval(pollStatus, 500);
   </script>
 </body>
@@ -195,10 +409,13 @@ inline void webBegin() {
     });
 
     server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *req) {
-        StaticJsonDocument<128> doc;
-        doc["x"] = stepperX->getCurrentPosition() / (float)STEPS_PER_MM;
-        doc["y"] = stepperY->getCurrentPosition() / (float)STEPS_PER_MM;
-        doc["running"] = stepperX->isRunning() || stepperY->isRunning();
+        StaticJsonDocument<192> doc;
+        doc["x"]            = stepperX->getCurrentPosition() / (float)STEPS_PER_MM;
+        doc["y"]            = stepperY->getCurrentPosition() / (float)STEPS_PER_MM;
+        doc["running"]      = stepperX->isRunning() || stepperY->isRunning();
+        doc["scan"]         = scanStateName();
+        doc["scanIdx"]      = scanWellIdx;
+        doc["scanTotal"]    = scanTotal;
         String out; serializeJson(doc, out);
         req->send(200, "application/json", out);
     });
@@ -217,6 +434,64 @@ inline void webBegin() {
             req->send(200, "application/json", "{\"status\":\""+resp+"\"}");
         }
     );
+
+    server.on("/api/move", HTTP_POST, [](AsyncWebServerRequest *req){},
+        nullptr,
+        [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t) {
+            StaticJsonDocument<64> doc;
+            deserializeJson(doc, data, len);
+            float x = doc["x"] | 0.0f;
+            float y = doc["y"] | 0.0f;
+            digitalWrite(ENABLE_PIN, LOW);  // garante motores habilitados
+            if (x != 0) stepperX->move((int32_t)(x * STEPS_PER_MM));
+            if (y != 0) stepperY->move((int32_t)(y * STEPS_PER_MM));
+            req->send(200, "application/json", "{\"status\":\"ok\"}");
+        }
+    );
+
+    server.on("/api/scan", HTTP_POST, [](AsyncWebServerRequest *req){},
+        nullptr,
+        [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t) {
+            DynamicJsonDocument doc(8192);
+            deserializeJson(doc, data, len);
+            float spX = doc["spacingX"] | 9.0f;
+            float spY = doc["spacingY"] | 9.0f;
+            static WellPos   wbuf[MAX_WELLS];
+            static PointOffset pbuf[MAX_POINTS];
+            int nw = 0, np = 0;
+            for (JsonObject w : doc["wells"].as<JsonArray>()) {
+                if (nw >= MAX_WELLS) break;
+                wbuf[nw++] = { (uint8_t)(int)w["r"], (uint8_t)(int)w["c"] };
+            }
+            for (JsonObject p : doc["points"].as<JsonArray>()) {
+                if (np >= MAX_POINTS) break;
+                pbuf[np++] = { p["x"] | 5.0f, p["y"] | 5.0f };
+            }
+            if (np == 0) { pbuf[0] = {5.0f, 5.0f}; np = 1; }  // centro como fallback
+            if (nw > 0) scanStart(wbuf, nw, pbuf, np, spX, spY);
+            req->send(200, "application/json", "{\"status\":\"started\",\"total\":" + String(nw) + "}");
+        }
+    );
+
+    server.on("/api/results", HTTP_GET, [](AsyncWebServerRequest *req) {
+        DynamicJsonDocument doc(16384);
+        JsonArray arr = doc.to<JsonArray>();
+        for (int i = 0; i < scanWellIdx; i++) {
+            JsonObject o = arr.createNestedObject();
+            o["row"] = scanResults[i].pos.row;
+            o["col"] = scanResults[i].pos.col;
+            o["415"] = scanResults[i].ch415;
+            o["445"] = scanResults[i].ch445;
+            o["480"] = scanResults[i].ch480;
+            o["515"] = scanResults[i].ch515;
+            o["555"] = scanResults[i].ch555;
+            o["590"] = scanResults[i].ch590;
+            o["630"] = scanResults[i].ch630;
+            o["680"] = scanResults[i].ch680;
+        }
+        String out; serializeJson(doc, out);
+        req->send(200, "application/json", out);
+    });
 
     server.begin();
     Serial.println("Servidor web iniciado");
