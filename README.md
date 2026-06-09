@@ -1,23 +1,23 @@
 # CNC Colorimetric Reader
 
-Instrumento de laboratório com dois eixos CNC para leitura automatizada de matrizes de poços usando o sensor espectral AS7341. O sistema posiciona o sensor sobre cada poço, coleta dados espectrais de múltiplos pontos por poço e exibe o status em tempo real via display TFT e interface web.
+A two-axis CNC laboratory instrument for automated spectral reading of well plates using the AS7341 sensor. The system positions the sensor over each well, collects spectral data from multiple points per well, and displays real-time status via TFT display and web interface.
 
 ## Hardware
 
-| Componente | Descrição |
+| Component | Description |
 |---|---|
-| Adafruit ESP32-S3 Reverse TFT Feather | Microcontrolador principal com display TFT 1.14" embutido |
-| CNC Shield V3 | Porta os drivers de motor |
-| DRV8825 (x2) | Drivers dos motores de passo |
-| NEMA 17 (x2) | Motores dos eixos X e Y |
-| AS7341 | Sensor espectral de 11 canais (I2C) |
+| Adafruit ESP32-S3 Reverse TFT Feather | Main microcontroller with built-in 1.14" TFT display |
+| CNC Shield V3 | Stepper driver carrier |
+| DRV8825 (x2) | Stepper motor drivers |
+| NEMA 17 (x2) | X and Y axis stepper motors |
+| AS7341 | 11-channel spectral sensor (I2C) |
 
-## Fiação
+## Wiring
 
-O CNC Shield V3 é projetado para Arduino UNO. Como o ESP32-S3 Feather tem pinout diferente, a conexão é feita com jumpers do socket Arduino do shield diretamente ao Feather.
+The CNC Shield V3 is designed for Arduino UNO. Since the ESP32-S3 Feather has a different pinout, connections are made with jumpers from the shield's Arduino socket directly to the Feather.
 
 ```
-Shield (socket Arduino)  →  ESP32-S3 Feather
+Shield (Arduino socket)  →  ESP32-S3 Feather
   D2  (X STEP)           →  GPIO 5
   D5  (X DIR)            →  GPIO 6
   D3  (Y STEP)           →  GPIO 9
@@ -25,70 +25,71 @@ Shield (socket Arduino)  →  ESP32-S3 Feather
   D8  (ENABLE)           →  GPIO 11
 ```
 
-> Os pinos STEP/DIR/ENABLE do DRV8825 aceitam 3.3V — compatível com o ESP32-S3.
+> The DRV8825 STEP/DIR/ENABLE pins accept 3.3V — compatible with the ESP32-S3.
 
-## Configuração dos motores
+## Motor Configuration
 
-Edite `firmware/src/config.h` conforme o seu mecanismo de transmissão:
+Edit `firmware/src/config.h` according to your drive mechanism:
 
-| Mecanismo | Microstepping DRV8825 | STEPS_PER_MM |
+| Mechanism | DRV8825 Microstepping | STEPS_PER_MM |
 |---|---|---|
-| Correia GT2 + polia 20 dentes | 1/32 step | 160 |
-| Fuso M5 (passo 0.8 mm) | 1/32 step | 6400 |
+| GT2 belt + 20T pulley | 1/32 step | 160 |
+| M5 leadscrew (0.8 mm pitch) | 1/32 step | 6400 |
 
-O jumper de microstepping fica nos pinos M0/M1/M2 de cada driver no CNC Shield.
+The microstepping jumper is on the M0/M1/M2 pins of each driver on the CNC Shield.
 
-### Limites de curso e origem
+### Travel Limits and Origin
 
-Também em `firmware/src/config.h`:
+Also in `firmware/src/config.h`:
 
-| Parâmetro | Valor padrão | Descrição |
+| Parameter | Default | Description |
 |---|---|---|
-| `X_MAX_MM` | 210.0 | Limite máximo do eixo X em mm |
-| `Y_MAX_MM` | 290.0 | Limite máximo do eixo Y em mm |
-| `X_ORIGIN_MM` | 5.0 | Distância do home até a quina do primeiro poço (X) |
-| `Y_ORIGIN_MM` | 5.0 | Distância do home até a quina do primeiro poço (Y) |
-| `MAX_SPEED_MM_S` | 25.0 | Velocidade máxima em mm/s |
-| `ACCEL_MM_S2` | 150.0 | Aceleração em mm/s² |
+| `X_MAX_MM` | 210.0 | Maximum X axis travel in mm |
+| `Y_MAX_MM` | 290.0 | Maximum Y axis travel in mm |
+| `X_ORIGIN_MM` | 5.0 | Distance from home to the first well corner (X) |
+| `Y_ORIGIN_MM` | 5.0 | Distance from home to the first well corner (Y) |
+| `MAX_SPEED_MM_S` | 25.0 | Maximum speed in mm/s |
+| `ACCEL_MM_S2` | 150.0 | Acceleration in mm/s² |
 
 ## Setup
 
-### Dependências
+### Dependencies
 
 ```bash
-# PlatformIO (compilação)
+# PlatformIO
 pip install platformio
 
-# Permissão de porta serial no Linux
+# Serial port permission (Linux)
 sudo usermod -a -G uucp $USER
 ```
 
-### Upload do firmware
+### Uploading the Firmware
 
 ```bash
 cd firmware
 pio run --target upload
 ```
 
-Se o ESP32-S3 não entrar em modo de download automaticamente:
-1. Segure **BOOT**
-2. Pressione e solte **RESET**
-3. Solte **BOOT**
-4. Rode o comando acima
+If the ESP32-S3 does not enter download mode automatically:
+1. Hold **BOOT**
+2. Press and release **RESET**
+3. Release **BOOT**
+4. Run the command above
 
-## Fases do projeto
+## Project Phases
 
-- [x] **Fase 1** — Controle básico dos motores via serial
-- [ ] **Fase 2** — Fim de curso, homing e coordenadas absolutas
-- [x] **Fase 3** — Integração do sensor AS7341
-- [x] **Fase 4** — Rotina de scan da matriz de poços
-- [x] **Fase 5** — Interface web (controle e configuração)
-- [x] **Fase 6** — Interface web (visualização e exportação de dados)
-- [x] **Fase 7** — Display TFT local
+- [x] **Phase 1** — Basic motor control via serial
+- [x] **Phase 2** — AS7341 sensor integration
+- [x] **Phase 3** — Well plate scan routine
+- [x] **Phase 4** — Web interface (control and configuration)
+- [x] **Phase 5** — Web interface (data visualization and export)
+- [x] **Phase 6** — Local TFT display
+- [ ] **Phase 7** — Z-axis control with servo motor
+- [ ] **Phase 8** — Endstops, homing and absolute coordinates
 
-## Display TFT
+## TFT Display
 
-O display exibe em tempo real, sem necessidade de conexão ao PC:
+The display shows real-time status without requiring a PC connection:
 
 ```
 CNC Colorimetric
@@ -99,44 +100,44 @@ X:12.3  Y:56.7mm
 waiting
 ```
 
-| Campo | Descrição |
+| Field | Description |
 |---|---|
-| IP | Endereço da interface web |
-| X / Y | Posição atual dos eixos em mm |
-| Progresso | Poço atual / total de poços |
-| Estado | `waiting`, `moving`, `reading` ou `done` |
+| IP | Web interface address |
+| X / Y | Current axis position in mm |
+| Progress | Current well / total wells |
+| State | `waiting`, `moving`, `reading` or `done` |
 
-## Comandos serial
+## Serial Commands
 
-Com o monitor serial aberto (115200 baud):
+With the serial monitor open at 115200 baud:
 
-| Comando | Descrição |
+| Command | Description |
 |---|---|
-| `x <mm>` | Move o eixo X pelo valor em mm (aceita negativo) |
-| `y <mm>` | Move o eixo Y pelo valor em mm (aceita negativo) |
-| `e` | Habilita os motores |
-| `d` | Desabilita os motores |
-| `p` | Imprime a posição atual de X e Y em mm |
-| `r` | Lê o sensor AS7341 e imprime os 8 canais |
-| `h` | Define a posição atual como home (0, 0) |
+| `x <mm>` | Move X axis by the given value in mm (accepts negative) |
+| `y <mm>` | Move Y axis by the given value in mm (accepts negative) |
+| `e` | Enable motors |
+| `d` | Disable motors |
+| `p` | Print current X and Y position in mm |
+| `r` | Read AS7341 sensor and print all 8 channels |
+| `h` | Set current position as home (0, 0) |
 
-## Interface Web
+## Web Interface
 
-Conecte-se à rede Wi-Fi configurada em `config.h` e acesse o IP exibido no display ou no serial.
+Connect to the Wi-Fi network configured in `config.h` and open the IP shown on the display or serial monitor.
 
-- **Configuração da matriz** — linhas, colunas e espaçamento entre poços (padrão: 12×12, 15mm)
-- **Seleção de poços** — clique nos poços da grade para selecionar quais serão escaneados
-- **Pontos por poço** — número de pontos, margem e tamanho do poço; prévia SVG mostra a distribuição
-- **Movimento manual** — jog em X e Y com passos de 0.1, 1, 5 ou 10 mm
-- **Scan** — inicia o escaneamento com barra de progresso em tempo real
-- **Resultados** — tabela com leituras individuais por ponto dos 8 canais do AS7341, com exportação CSV
+- **Plate configuration** — set rows, columns and well spacing (default: 12×12, 15 mm)
+- **Well selection** — click wells on the grid to select which ones will be scanned
+- **Points per well** — number of sampling points, margin and well size; SVG preview shows point distribution
+- **Manual jog** — move X and Y in steps of 0.1, 1, 5 or 10 mm
+- **Scan** — start scanning selected wells with a real-time progress bar
+- **Results** — table with individual readings per point for all 8 AS7341 channels, with CSV export
 
-## API REST
+## REST API
 
-| Método | Endpoint | Descrição |
+| Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/status` | Posição atual, estado do scan e progresso |
-| `POST` | `/api/cmd` | Envia comando serial (`e`, `d`, `h`, `x <mm>`, `y <mm>`) |
-| `POST` | `/api/move` | Move relativamente em X e/ou Y (JSON: `{x, y}` em mm) |
-| `POST` | `/api/scan` | Inicia o scan (JSON: `{wells, spacingX, spacingY, points}`) |
-| `GET` | `/api/results` | Retorna leituras individuais por ponto de cada poço escaneado |
+| `GET` | `/api/status` | Current position, scan state and progress |
+| `POST` | `/api/cmd` | Send serial command (`e`, `d`, `h`, `x <mm>`, `y <mm>`) |
+| `POST` | `/api/move` | Move relatively in X and/or Y (JSON: `{x, y}` in mm) |
+| `POST` | `/api/scan` | Start scan (JSON: `{wells, spacingX, spacingY, points}`) |
+| `GET` | `/api/results` | Return individual point readings for each scanned well |
