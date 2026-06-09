@@ -38,7 +38,7 @@ Edit `firmware/src/config.h` according to your drive mechanism:
 | GT2 belt + 20T pulley | 1/32 step | 160 |
 | M5 leadscrew (0.8 mm pitch) | 1/32 step | 6400 |
 
-The microstepping jumper is on the M0/M1/M2 pins of each driver on the CNC Shield.
+The microstepping jumper is on the M0/M2 pins of each driver on the CNC Shield.
 
 ### Travel Limits and Origin
 
