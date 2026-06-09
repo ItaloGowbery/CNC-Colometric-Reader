@@ -18,7 +18,7 @@ The CNC Shield V3 is designed for Arduino UNO. Since the ESP32-S3 Feather has a 
 
 ```
 Shield (Arduino socket)  →  ESP32-S3 Feather
-  5V                     →  USB
+  5V                     →  USB (5V)
   GND                    →  GND
   D2  (X STEP)           →  GPIO 5
   D5  (X DIR)            →  GPIO 6
