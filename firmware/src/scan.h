@@ -3,8 +3,8 @@
 #include "sensor.h"
 #include "config.h"
 
-#define MAX_WELLS  250
-#define MAX_POINTS   9
+#define MAX_WELLS   250
+#define MAX_POINTS  256
 
 struct WellPos    { uint8_t row; uint8_t col; };
 struct PointOffset{ float dx; float dy; };  // offset do canto sup-esq do poço (mm)
@@ -23,13 +23,15 @@ extern class FastAccelStepper *stepperY;
 
 static ScanState   scanState       = SCAN_IDLE;
 static WellPos     scanQueue[MAX_WELLS];
-static ScanResult  scanResults[MAX_WELLS * MAX_POINTS];
+static ScanResult  scanResults[256];   // buffer para /api/results (export)
 static PointOffset scanPoints[MAX_POINTS];
 static int         scanTotal       = 0;
 static int         scanResultCount = 0;
 static int         scanWellIdx     = 0;
 static int         scanPointIdx    = 0;
 static int         scanNumPts      = 1;
+static void (*scanResultCallback)(const ScanResult*) = nullptr;
+static void (*scanDoneCallback)()                    = nullptr;
 static float       scanSpacingX    = 9.0f;
 static float       scanSpacingY    = 9.0f;
 
@@ -71,12 +73,14 @@ inline void scanLoop() {
 
         case SCAN_READING: {
             SensorReading r = sensorRead();
-            scanResults[scanResultCount++] = {
+            ScanResult res = {
                 scanQueue[scanWellIdx], (uint8_t)scanPointIdx,
                 r.ch415, r.ch445, r.ch480, r.ch515,
                 r.ch555, r.ch590, r.ch630, r.ch680,
                 r.clear, r.nir, r.ok
             };
+            if (scanResultCount < 256) scanResults[scanResultCount++] = res;
+            if (scanResultCallback) scanResultCallback(&res);
             scanPointIdx++;
 
             if (scanPointIdx >= scanNumPts) {
@@ -86,6 +90,7 @@ inline void scanLoop() {
                 if (scanWellIdx >= scanTotal) {
                     scanState = SCAN_DONE;
                     Serial.println("[SCAN] Concluído");
+                    if (scanDoneCallback) scanDoneCallback();
                 } else {
                     _moveToPoint(scanWellIdx, 0);
                     scanState = SCAN_MOVING;

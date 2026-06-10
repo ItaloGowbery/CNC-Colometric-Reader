@@ -6,7 +6,8 @@
 #include "config.h"
 #include "scan.h"
 
-static AsyncWebServer server(80);
+static AsyncWebServer   server(80);
+static AsyncEventSource _events("/api/events");
 
 // Acesso aos steppers definidos em main.cpp
 extern class FastAccelStepper *stepperX;
@@ -75,7 +76,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <div class="card">
     <h3>Pontos por Poço</h3>
     <div class="row" style="margin-bottom:14px">
-      <div class="field"><label>Nº de Pontos</label><input type="number" id="numPts" value="1" min="1" max="9" oninput="updatePreview()"></div>
+      <div class="field"><label>Nº de Pontos</label><input type="number" id="numPts" value="1" min="1" max="256" oninput="updatePreview()"></div>
       <div class="field"><label>Margem (mm)</label><input type="number" id="margin" value="1" step="0.1" min="0" max="4.9" oninput="updatePreview()"></div>
       <div class="field"><label>Tamanho poço (mm)</label><input type="number" id="wellSize" value="10" step="0.1" min="1" oninput="updatePreview()"></div>
     </div>
@@ -197,6 +198,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <script>
     const sel = new Set();
     let step = 1;
+    let _evtSource = null;
 
     const ALL_CHANNELS = [
       {key:'415',   label:'415nm'},
@@ -213,6 +215,27 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 
     function getActiveChannels() {
       return ALL_CHANNELS.filter(ch => document.getElementById('ch_'+ch.key).checked);
+    }
+
+    function rebuildTableHeader() {
+      const active = getActiveChannels();
+      const th = s => '<th style="padding:6px 8px">'+s+'</th>';
+      document.querySelector('#resultsTable thead tr').innerHTML =
+        '<th style="padding:6px 8px;text-align:left">Poço</th>' +
+        '<th style="padding:6px 8px">Ponto</th>' +
+        active.map(ch=>th(ch.label)).join('');
+    }
+
+    function appendResultRow(r) {
+      const active = getActiveChannels();
+      const letters = 'ABCDEFGHIJKLMNOP';
+      const td = s => '<td style="padding:5px 8px;text-align:center">'+s+'</td>';
+      const body = document.getElementById('resultsBody');
+      const tr = document.createElement('tr');
+      tr.style.background = body.children.length%2 ? '#f5f5f5':'#fff';
+      tr.innerHTML = '<td style="padding:5px 8px;font-weight:600">'+letters[r.row]+r.col+'</td>'+
+        td(r.point+1)+active.map(ch=>td(r[ch.key])).join('');
+      body.appendChild(tr);
     }
 
     function setLED() {
@@ -377,9 +400,26 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         .then(r=>r.json()).then(()=>{
           scanning = true;
           document.getElementById('scanProgress').style.display='block';
-          document.getElementById('resultsCard').style.display='none';
-          document.getElementById('resultsBody').innerHTML='';
           document.getElementById('scanBtn').disabled=true;
+          document.getElementById('resultsBody').innerHTML='';
+          rebuildTableHeader();
+          document.getElementById('resultsCard').style.display='block';
+          if (_evtSource) _evtSource.close();
+          _evtSource = new EventSource('/api/events');
+          _evtSource.addEventListener('reading', e => {
+            const r = JSON.parse(e.data);
+            appendResultRow(r);
+            const pct = r.wellTotal>0 ? (r.wellIdx/r.wellTotal*100) : 0;
+            document.getElementById('progressBar').style.width=pct+'%';
+            document.getElementById('progressTxt').textContent='Poço '+r.wellIdx+' / '+r.wellTotal;
+          });
+          _evtSource.addEventListener('done', () => {
+            _evtSource.close(); _evtSource=null;
+            scanning=false;
+            document.getElementById('progressBar').style.width='100%';
+            document.getElementById('progressTxt').textContent='Scan concluído!';
+            document.getElementById('scanBtn').disabled=sel.size===0;
+          });
         });
     }
 
@@ -388,17 +428,12 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         document.getElementById('sx').textContent=d.x.toFixed(2);
         document.getElementById('sy').textContent=d.y.toFixed(2);
         document.getElementById('sm').textContent=d.running?'Movendo':'Parado';
-        if (scanning) {
-          const pct = d.scanTotal>0 ? (d.scanIdx/d.scanTotal*100) : 0;
-          document.getElementById('progressBar').style.width=pct+'%';
-          document.getElementById('progressTxt').textContent=
-            d.scan==='done'
-              ? 'Scan concluído!'
-              : 'Poço '+d.scanIdx+' / '+d.scanTotal;
-          if (d.scan==='done') {
-            scanning=false;
-            loadResults();
-          }
+        if (scanning && d.scan==='done' && !_evtSource) {
+          scanning=false;
+          loadResults();
+          document.getElementById('progressBar').style.width='100%';
+          document.getElementById('progressTxt').textContent='Scan concluído!';
+          document.getElementById('scanBtn').disabled=sel.size===0;
         }
       }).catch(()=>{});
     }
@@ -449,6 +484,24 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 </body>
 </html>
 )rawhtml";
+
+static void _sendResultSSE(const ScanResult* r) {
+    char buf[300];
+    snprintf(buf, sizeof(buf),
+        "{\"row\":%u,\"col\":%u,\"point\":%u,\"wellIdx\":%d,\"wellTotal\":%d,"
+        "\"415\":%u,\"445\":%u,\"480\":%u,\"515\":%u,"
+        "\"555\":%u,\"590\":%u,\"630\":%u,\"680\":%u,"
+        "\"clear\":%u,\"nir\":%u}",
+        r->pos.row, r->pos.col, r->pointIdx, scanWellIdx, scanTotal,
+        r->ch415, r->ch445, r->ch480, r->ch515,
+        r->ch555, r->ch590, r->ch630, r->ch680,
+        r->clear, r->nir);
+    _events.send(buf, "reading", millis());
+}
+
+static void _sendDoneSSE() {
+    _events.send("{}", "done", millis());
+}
 
 inline void webBegin() {
     WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -571,6 +624,9 @@ inline void webBegin() {
         }
     );
 
+    server.addHandler(&_events);
+    scanResultCallback = _sendResultSSE;
+    scanDoneCallback   = _sendDoneSSE;
     server.begin();
     Serial.println("Servidor web iniciado");
 }
