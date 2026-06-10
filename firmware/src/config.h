@@ -3,8 +3,11 @@
 // ---------------------------------------------------------------------------
 // WiFi
 // ---------------------------------------------------------------------------
-#define WIFI_SSID  "WiFi_MZNET_2G"
-#define WIFI_PASS  "rede142536"
+//#define WIFI_SSID  "WiFi_MZNET_2G"
+//#define WIFI_PASS  "rede142536"
+
+#define WIFI_SSID  "TP-Link_7201"
+#define WIFI_PASS  "83345173"
 
 // ---------------------------------------------------------------------------
 // Fiação: conectar jumpers do socket Arduino do CNC Shield ao Feather
@@ -34,7 +37,7 @@
 //     mm/volta     = 0.8mm              →   STEPS_PER_MM = 2000
 // ---------------------------------------------------------------------------
 #define STEPS_PER_MM      160     // GT2 20T + DRV8825 1/32 step: 200*32/40mm
-#define MAX_SPEED_MM_S    25.0f
+#define MAX_SPEED_MM_S    50.0f
 #define ACCEL_MM_S2       150.0f
 
 #define X_MAX_MM          210.0f

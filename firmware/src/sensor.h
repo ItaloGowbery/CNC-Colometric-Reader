@@ -1,8 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-// Descomente quando o sensor estiver conectado fisicamente:
-// #define AS7341_REAL
+#define AS7341_REAL
 
 struct SensorReading {
     uint16_t ch415;   // violeta
@@ -13,6 +12,8 @@ struct SensorReading {
     uint16_t ch590;   // laranja
     uint16_t ch630;   // vermelho
     uint16_t ch680;   // vermelho-escuro
+    uint16_t clear;   // luz visível total
+    uint16_t nir;     // 910nm infravermelho próximo
     bool     ok;      // false se leitura falhou
 };
 
@@ -21,12 +22,20 @@ struct SensorReading {
 static Adafruit_AS7341 _as7341;
 #endif
 
+inline void sensorSetLED(uint8_t mA) {
+#ifdef AS7341_REAL
+    _as7341.setLEDCurrent(mA);
+#endif
+}
+
 inline bool sensorBegin() {
 #ifdef AS7341_REAL
     if (!_as7341.begin()) return false;
     _as7341.setATIME(100);
     _as7341.setASTEP(999);
     _as7341.setGain(AS7341_GAIN_256X);
+    _as7341.enableLED(true);
+    _as7341.setLEDCurrent(10);
     return true;
 #else
     Serial.println("[SENSOR] Modo stub ativo (sem hardware)");
@@ -46,6 +55,8 @@ inline SensorReading sensorRead() {
         _as7341.getChannel(AS7341_CHANNEL_590nm_F6),
         _as7341.getChannel(AS7341_CHANNEL_630nm_F7),
         _as7341.getChannel(AS7341_CHANNEL_680nm_F8),
+        _as7341.getChannel(AS7341_CHANNEL_CLEAR),
+        _as7341.getChannel(AS7341_CHANNEL_NIR),
         true
     };
 #else
@@ -59,6 +70,8 @@ inline SensorReading sensorRead() {
         (uint16_t)(2200 + random(200)),
         (uint16_t)(1800 + random(200)),
         (uint16_t)(1200 + random(200)),
+        (uint16_t)(5000 + random(500)),
+        (uint16_t)(800  + random(100)),
         true
     };
 #endif

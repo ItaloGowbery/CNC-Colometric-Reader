@@ -1,4 +1,5 @@
-.pio/build/feather_esp32s3_tft/src/main.cpp.o: src/main.cpp \
+.pio/build/feather_esp32s3_tft/lib569/Adafruit\ AS7341/Adafruit_AS7341.cpp.o: \
+ .pio/libdeps/feather_esp32s3_tft/Adafruit\ AS7341/Adafruit_AS7341.cpp \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp_arduino_version.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include/freertos/FreeRTOS.h \
@@ -179,79 +180,12 @@
  /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_hw_support/include/soc/esp32/spiram.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/FastAccelStepper.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/PoorManFloat.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/fas_common.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_system/include/esp_task_wdt.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/mcpwm.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/mcpwm_types.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/pcnt.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/pcnt_types.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/mcpwm_reg.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/mcpwm_struct.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/pcnt_reg.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/pcnt_struct.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/periph_ctrl.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/periph_defs.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/driver/include/driver/rmt.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_ringbuf/include/freertos/ringbuf.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/rmt_struct.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/hal/include/hal/rmt_types.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/include/soc/rmt_periph.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/soc/esp32s3/include/soc/rmt_reg.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampGenerator.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/FastAccelStepper.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampCalculator.h \
- .pio/libdeps/feather_esp32s3_tft/FastAccelStepper/src/RampConstAcceleration.h \
- src/config.h src/sensor.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  .pio/libdeps/feather_esp32s3_tft/Adafruit\ AS7341/Adafruit_AS7341.h \
  .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_BusIO_Register.h \
  .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_GenericDevice.h \
  .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_I2CDevice.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  .pio/libdeps/feather_esp32s3_tft/Adafruit\ BusIO/Adafruit_SPIDevice.h \
  /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
- src/scan.h src/web.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiType.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_wifi/include/esp_smartconfig.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/manager.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/common/protocomm.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/security/protocomm_security.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/wifi_config.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiAP.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiScan.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Client.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiServer.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Server.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/ESPAsyncWebServer.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
- .pio/libdeps/feather_esp32s3_tft/AsyncTCP@src-7fb2940bccb78b8d2de6915ae328b7fc/src/AsyncTCP.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/lwip/lwip/src/include/lwip/pbuf.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/literals.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/AsyncEventSource.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/AsyncWebSocket.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/WebHandlerImpl.h \
- .pio/libdeps/feather_esp32s3_tft/ESPAsyncWebServer/src/WebResponseImpl.h \
- /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/StreamString.h \
- .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.h \
- .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson.hpp \
- .pio/libdeps/feather_esp32s3_tft/ArduinoJson/src/ArduinoJson/Configuration.hpp \
- src/display.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_GFX.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/gfxfont.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST7789.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST77xx.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_SPITFT.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_GFX.h \
- .pio/libdeps/feather_esp32s3_tft/Adafruit\ GFX\ Library/Adafruit_SPITFT_Macros.h
+ /home/italo/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h

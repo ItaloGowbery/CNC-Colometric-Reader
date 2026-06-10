@@ -3,8 +3,8 @@
 #include "sensor.h"
 #include "config.h"
 
-#define MAX_WELLS  384
-#define MAX_POINTS  25
+#define MAX_WELLS  250
+#define MAX_POINTS   9
 
 struct WellPos    { uint8_t row; uint8_t col; };
 struct PointOffset{ float dx; float dy; };  // offset do canto sup-esq do poço (mm)
@@ -12,7 +12,7 @@ struct PointOffset{ float dx; float dy; };  // offset do canto sup-esq do poço 
 struct ScanResult {
     WellPos  pos;
     uint8_t  pointIdx;
-    uint16_t ch415,ch445,ch480,ch515,ch555,ch590,ch630,ch680;
+    uint16_t ch415,ch445,ch480,ch515,ch555,ch590,ch630,ch680,clear,nir;
     bool     ok;
 };
 
@@ -75,7 +75,7 @@ inline void scanLoop() {
                 scanQueue[scanWellIdx], (uint8_t)scanPointIdx,
                 r.ch415, r.ch445, r.ch480, r.ch515,
                 r.ch555, r.ch590, r.ch630, r.ch680,
-                r.ok
+                r.clear, r.nir, r.ok
             };
             scanPointIdx++;
 

@@ -75,7 +75,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <div class="card">
     <h3>Pontos por Poço</h3>
     <div class="row" style="margin-bottom:14px">
-      <div class="field"><label>Nº de Pontos</label><input type="number" id="numPts" value="1" min="1" max="25" oninput="updatePreview()"></div>
+      <div class="field"><label>Nº de Pontos</label><input type="number" id="numPts" value="1" min="1" max="9" oninput="updatePreview()"></div>
       <div class="field"><label>Margem (mm)</label><input type="number" id="margin" value="1" step="0.1" min="0" max="4.9" oninput="updatePreview()"></div>
       <div class="field"><label>Tamanho poço (mm)</label><input type="number" id="wellSize" value="10" step="0.1" min="1" oninput="updatePreview()"></div>
     </div>
@@ -132,6 +132,32 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class="card">
+    <h3>Sensor AS7341</h3>
+    <div class="row" style="margin-bottom:12px;align-items:flex-end">
+      <div class="field">
+        <label>Corrente LED (mA)</label>
+        <input type="number" id="ledCurrent" value="10" min="4" max="258" step="1" style="width:80px">
+      </div>
+      <button class="btn btn-primary" onclick="setLED()">Aplicar</button>
+    </div>
+    <div>
+      <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:6px">CANAIS ATIVOS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px">
+        <label><input type="checkbox" id="ch_415" checked> 415nm</label>
+        <label><input type="checkbox" id="ch_445" checked> 445nm</label>
+        <label><input type="checkbox" id="ch_480" checked> 480nm</label>
+        <label><input type="checkbox" id="ch_515" checked> 515nm</label>
+        <label><input type="checkbox" id="ch_555" checked> 555nm</label>
+        <label><input type="checkbox" id="ch_590" checked> 590nm</label>
+        <label><input type="checkbox" id="ch_630" checked> 630nm</label>
+        <label><input type="checkbox" id="ch_680" checked> 680nm</label>
+        <label><input type="checkbox" id="ch_clear" checked> Clear</label>
+        <label><input type="checkbox" id="ch_nir" checked> NIR</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <h3>Controle</h3>
     <div class="actions">
       <button class="btn btn-secondary" onclick="sendCmd('h')">Definir Home Aqui</button>
@@ -159,6 +185,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
             <th style="padding:6px 8px">480nm</th><th style="padding:6px 8px">515nm</th>
             <th style="padding:6px 8px">555nm</th><th style="padding:6px 8px">590nm</th>
             <th style="padding:6px 8px">630nm</th><th style="padding:6px 8px">680nm</th>
+            <th style="padding:6px 8px">Clear</th><th style="padding:6px 8px">NIR</th>
           </tr>
         </thead>
         <tbody id="resultsBody"></tbody>
@@ -170,6 +197,29 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <script>
     const sel = new Set();
     let step = 1;
+
+    const ALL_CHANNELS = [
+      {key:'415',   label:'415nm'},
+      {key:'445',   label:'445nm'},
+      {key:'480',   label:'480nm'},
+      {key:'515',   label:'515nm'},
+      {key:'555',   label:'555nm'},
+      {key:'590',   label:'590nm'},
+      {key:'630',   label:'630nm'},
+      {key:'680',   label:'680nm'},
+      {key:'clear', label:'Clear'},
+      {key:'nir',   label:'NIR'},
+    ];
+
+    function getActiveChannels() {
+      return ALL_CHANNELS.filter(ch => document.getElementById('ch_'+ch.key).checked);
+    }
+
+    function setLED() {
+      const mA = parseInt(document.getElementById('ledCurrent').value);
+      fetch('/api/led', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({mA})});
+    }
 
     function computePoints(N, wellSize, margin) {
       const usable = wellSize - 2 * margin;
@@ -355,16 +405,21 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 
     function loadResults() {
       fetch('/api/results').then(r=>r.json()).then(data=>{
-        const body=document.getElementById('resultsBody');
-        const letters='ABCDEFGHIJKLMNOP';
+        const active = getActiveChannels();
+        const letters = 'ABCDEFGHIJKLMNOP';
+        const th = s => '<th style="padding:6px 8px">'+s+'</th>';
+        const td = s => '<td style="padding:5px 8px;text-align:center">'+s+'</td>';
+        document.querySelector('#resultsTable thead tr').innerHTML =
+          '<th style="padding:6px 8px;text-align:left">Poço</th>' +
+          '<th style="padding:6px 8px">Ponto</th>' +
+          active.map(ch=>th(ch.label)).join('');
+        const body = document.getElementById('resultsBody');
+        body.innerHTML = '';
         data.forEach((r,i)=>{
-          const tr=document.createElement('tr');
-          tr.style.background=i%2?'#f5f5f5':'#fff';
-          const label=letters[r.row]+r.col;
-          tr.innerHTML='<td style="padding:5px 8px;font-weight:600">'+label+'</td>'+
-            '<td style="padding:5px 8px;text-align:center">'+(r.point+1)+'</td>'+
-            [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']]
-            .map(v=>'<td style="padding:5px 8px;text-align:center">'+v+'</td>').join('');
+          const tr = document.createElement('tr');
+          tr.style.background = i%2 ? '#f5f5f5' : '#fff';
+          tr.innerHTML = '<td style="padding:5px 8px;font-weight:600">'+letters[r.row]+r.col+'</td>'+
+            td(r.point+1) + active.map(ch=>td(r[ch.key])).join('');
           body.appendChild(tr);
         });
         document.getElementById('resultsCard').style.display='block';
@@ -374,11 +429,12 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 
     function exportCSV() {
       fetch('/api/results').then(r=>r.json()).then(data=>{
-        const letters='ABCDEFGHIJKLMNOP';
-        let csv='Poco,Ponto,415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm\n';
+        const active = getActiveChannels();
+        const letters = 'ABCDEFGHIJKLMNOP';
+        let csv = 'Poco,Ponto,' + active.map(ch=>ch.label).join(',') + '\n';
         data.forEach(r=>{
-          csv+=letters[r.row]+r.col+','+(r.point+1)+','+
-            [r['415'],r['445'],r['480'],r['515'],r['555'],r['590'],r['630'],r['680']].join(',')+'\n';
+          csv += letters[r.row]+r.col+','+(r.point+1)+','+
+            active.map(ch=>r[ch.key]).join(',') + '\n';
         });
         const a=document.createElement('a');
         a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
@@ -497,10 +553,23 @@ inline void webBegin() {
             o["590"]   = scanResults[i].ch590;
             o["630"]   = scanResults[i].ch630;
             o["680"]   = scanResults[i].ch680;
+            o["clear"] = scanResults[i].clear;
+            o["nir"]   = scanResults[i].nir;
         }
         String out; serializeJson(doc, out);
         req->send(200, "application/json", out);
     });
+
+    server.on("/api/led", HTTP_POST, [](AsyncWebServerRequest *req){},
+        nullptr,
+        [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t) {
+            StaticJsonDocument<32> doc;
+            deserializeJson(doc, data, len);
+            int mA = doc["mA"] | 10;
+            sensorSetLED((uint8_t)constrain(mA, 4, 258));
+            req->send(200, "application/json", "{\"status\":\"ok\"}");
+        }
+    );
 
     server.begin();
     Serial.println("Servidor web iniciado");
