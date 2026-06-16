@@ -206,6 +206,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 
   <div class="card" id="resultsCard" style="display:none">
     <h3>Resultados</h3>
+    <button class="btn btn-secondary" style="margin-bottom:10px" onclick="exportCSV()">Exportar CSV</button>
     <div style="overflow-x:auto">
       <table id="resultsTable" style="border-collapse:collapse;font-size:12px;width:100%">
         <thead>
@@ -222,7 +223,6 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         <tbody id="resultsBody"></tbody>
       </table>
     </div>
-    <button class="btn btn-secondary" style="margin-top:10px" onclick="exportCSV()">Exportar CSV</button>
   </div>
 
   <script>
