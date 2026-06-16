@@ -36,9 +36,10 @@ inline void sensorSetConfig(float integrationMs, uint8_t gainIdx) {
         AS7341_GAIN_128X, AS7341_GAIN_256X, AS7341_GAIN_512X
     };
     if (gainIdx > 10) gainIdx = 10;
-    // ASTEP fixo em 999 → cada tick = 2.78ms; ATIME define quantos ticks
-    uint8_t atime = (uint8_t)constrain((int)round(integrationMs / 2.78f) - 1, 0, 255);
+    // ASTEP=5619 → tick=15.6ms; ATIME=0..255 cobre 15ms..4003ms
+    uint8_t atime = (uint8_t)constrain((int)round(integrationMs / 15.6f) - 1, 0, 255);
     _as7341.setATIME(atime);
+    _as7341.setASTEP(5619);
     _as7341.setGain(gains[gainIdx]);
 #endif
 }
@@ -46,8 +47,8 @@ inline void sensorSetConfig(float integrationMs, uint8_t gainIdx) {
 inline bool sensorBegin() {
 #ifdef AS7341_REAL
     if (!_as7341.begin()) return false;
-    _as7341.setATIME(29);
-    _as7341.setASTEP(999);
+    _as7341.setATIME(4);    // ~78ms com ASTEP=5619
+    _as7341.setASTEP(5619);
     _as7341.setGain(AS7341_GAIN_16X);
     _as7341.enableLED(true);
     _as7341.setLEDCurrent(10);

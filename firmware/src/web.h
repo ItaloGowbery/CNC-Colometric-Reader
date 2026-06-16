@@ -144,7 +144,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
     <div class="row" style="margin-bottom:12px;align-items:flex-end">
       <div class="field">
         <label style="text-transform:none">Integração (ms)</label>
-        <input type="number" id="integMs" value="83" min="3" max="710" step="1" style="width:80px">
+        <input type="number" id="integMs" value="78" min="16" max="4000" step="16" style="width:80px">
       </div>
       <div class="field">
         <label>Gain</label>
