@@ -65,8 +65,8 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   <div class="card">
     <h3>Configuração da Placa</h3>
     <div class="row">
-      <div class="field"><label>Linhas</label><input type="number" id="rows" value="12" min="1" max="16"></div>
-      <div class="field"><label>Colunas</label><input type="number" id="cols" value="12" min="1" max="24"></div>
+      <div class="field"><label>Linhas</label><input type="number" id="rows" value="6" min="1" max="16"></div>
+      <div class="field"><label>Colunas</label><input type="number" id="cols" value="6" min="1" max="24"></div>
       <div class="field"><label>Espaç. X (mm)</label><input type="number" id="spX" value="15" step="0.1" min="0.1"></div>
       <div class="field"><label>Espaç. Y (mm)</label><input type="number" id="spY" value="15" step="0.1" min="0.1"></div>
       <button class="btn btn-primary" onclick="buildGrid()">Aplicar</button>
@@ -136,10 +136,40 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
     <h3>Sensor AS7341</h3>
     <div class="row" style="margin-bottom:12px;align-items:flex-end">
       <div class="field">
-        <label>Corrente LED (mA)</label>
+        <label style="text-transform:none">Corrente LED (mA)</label>
         <input type="number" id="ledCurrent" value="10" min="4" max="258" step="1" style="width:80px">
       </div>
       <button class="btn btn-primary" onclick="setLED()">Aplicar</button>
+    </div>
+    <div class="row" style="margin-bottom:12px;align-items:flex-end">
+      <div class="field">
+        <label style="text-transform:none">Integração (ms)</label>
+        <input type="number" id="integMs" value="83" min="3" max="710" step="1" style="width:80px">
+      </div>
+      <div class="field">
+        <label>Gain</label>
+        <select id="gainSel" style="padding:7px 8px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+          <option value="0">0.5×</option>
+          <option value="1">1×</option>
+          <option value="2">2×</option>
+          <option value="3">4×</option>
+          <option value="4">8×</option>
+          <option value="5" selected>16×</option>
+          <option value="6">32×</option>
+          <option value="7">64×</option>
+          <option value="8">128×</option>
+          <option value="9">256×</option>
+          <option value="10">512×</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="setSensorConfig()">Aplicar</button>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:6px">MODO DE SALVAMENTO</div>
+      <div style="display:flex;gap:20px;font-size:13px">
+        <label><input type="radio" name="saveMode" value="individual" checked> Pontos individuais</label>
+        <label><input type="radio" name="saveMode" value="average"> Média por poço</label>
+      </div>
     </div>
     <div>
       <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:6px">CANAIS ATIVOS</div>
@@ -217,12 +247,17 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
       return ALL_CHANNELS.filter(ch => document.getElementById('ch_'+ch.key).checked);
     }
 
+    function isSaveModeAverage() {
+      const el = document.querySelector('input[name="saveMode"]:checked');
+      return el && el.value === 'average';
+    }
+
     function rebuildTableHeader() {
       const active = getActiveChannels();
       const th = s => '<th style="padding:6px 8px">'+s+'</th>';
       document.querySelector('#resultsTable thead tr').innerHTML =
         '<th style="padding:6px 8px;text-align:left">Poço</th>' +
-        '<th style="padding:6px 8px">Ponto</th>' +
+        (isSaveModeAverage() ? '' : '<th style="padding:6px 8px">Ponto</th>') +
         active.map(ch=>th(ch.label)).join('');
     }
 
@@ -234,7 +269,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
       const tr = document.createElement('tr');
       tr.style.background = body.children.length%2 ? '#f5f5f5':'#fff';
       tr.innerHTML = '<td style="padding:5px 8px;font-weight:600">'+letters[r.row]+r.col+'</td>'+
-        td(r.point+1)+active.map(ch=>td(r[ch.key])).join('');
+        (isSaveModeAverage() ? '' : td(r.point+1))+active.map(ch=>td(r[ch.key])).join('');
       body.appendChild(tr);
     }
 
@@ -242,6 +277,13 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
       const mA = parseInt(document.getElementById('ledCurrent').value);
       fetch('/api/led', {method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({mA})});
+    }
+
+    function setSensorConfig() {
+      const ms   = parseFloat(document.getElementById('integMs').value);
+      const gain = parseInt(document.getElementById('gainSel').value);
+      fetch('/api/sensor', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ms, gain})});
     }
 
     function computePoints(N, wellSize, margin) {
@@ -394,9 +436,10 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
         const [r,c] = id.split(',');
         return {r:parseInt(r), c:parseInt(c)};
       });
+      const avgMode = isSaveModeAverage();
       const points = computePoints(N, ws, mg);
       fetch('/api/scan', {method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({wells, spacingX:spX, spacingY:spY, points})})
+        body: JSON.stringify({wells, spacingX:spX, spacingY:spY, points, avgMode})})
         .then(r=>r.json()).then(()=>{
           scanning = true;
           document.getElementById('scanProgress').style.display='block';
@@ -442,11 +485,12 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
       fetch('/api/results').then(r=>r.json()).then(data=>{
         const active = getActiveChannels();
         const letters = 'ABCDEFGHIJKLMNOP';
+        const avg = isSaveModeAverage();
         const th = s => '<th style="padding:6px 8px">'+s+'</th>';
         const td = s => '<td style="padding:5px 8px;text-align:center">'+s+'</td>';
         document.querySelector('#resultsTable thead tr').innerHTML =
           '<th style="padding:6px 8px;text-align:left">Poço</th>' +
-          '<th style="padding:6px 8px">Ponto</th>' +
+          (avg ? '' : '<th style="padding:6px 8px">Ponto</th>') +
           active.map(ch=>th(ch.label)).join('');
         const body = document.getElementById('resultsBody');
         body.innerHTML = '';
@@ -454,7 +498,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
           const tr = document.createElement('tr');
           tr.style.background = i%2 ? '#f5f5f5' : '#fff';
           tr.innerHTML = '<td style="padding:5px 8px;font-weight:600">'+letters[r.row]+r.col+'</td>'+
-            td(r.point+1) + active.map(ch=>td(r[ch.key])).join('');
+            (avg ? '' : td(r.point+1)) + active.map(ch=>td(r[ch.key])).join('');
           body.appendChild(tr);
         });
         document.getElementById('resultsCard').style.display='block';
@@ -466,9 +510,10 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
       fetch('/api/results').then(r=>r.json()).then(data=>{
         const active = getActiveChannels();
         const letters = 'ABCDEFGHIJKLMNOP';
-        let csv = 'Poco,Ponto,' + active.map(ch=>ch.label).join(',') + '\n';
+        const avg = isSaveModeAverage();
+        let csv = 'Poco,' + (avg ? '' : 'Ponto,') + active.map(ch=>ch.label).join(',') + '\n';
         data.forEach(r=>{
-          csv += letters[r.row]+r.col+','+(r.point+1)+','+
+          csv += letters[r.row]+r.col+',' + (avg ? '' : (r.point+1)+',') +
             active.map(ch=>r[ch.key]).join(',') + '\n';
         });
         const a=document.createElement('a');
@@ -585,7 +630,8 @@ inline void webBegin() {
                 pbuf[np++] = { p["x"] | 5.0f, p["y"] | 5.0f };
             }
             if (np == 0) { pbuf[0] = {5.0f, 5.0f}; np = 1; }  // centro como fallback
-            if (nw > 0) scanStart(wbuf, nw, pbuf, np, spX, spY);
+            bool avgMode = doc["avgMode"] | false;
+            if (nw > 0) scanStart(wbuf, nw, pbuf, np, spX, spY, avgMode);
             req->send(200, "application/json", "{\"status\":\"started\",\"total\":" + String(nw) + "}");
         }
     );
@@ -612,6 +658,18 @@ inline void webBegin() {
         String out; serializeJson(doc, out);
         req->send(200, "application/json", out);
     });
+
+    server.on("/api/sensor", HTTP_POST, [](AsyncWebServerRequest *req){},
+        nullptr,
+        [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t) {
+            StaticJsonDocument<64> doc;
+            deserializeJson(doc, data, len);
+            float ms      = doc["ms"]   | 83.0f;
+            uint8_t gainIdx = doc["gain"] | 5;
+            sensorSetConfig(ms, gainIdx);
+            req->send(200, "application/json", "{\"status\":\"ok\"}");
+        }
+    );
 
     server.on("/api/led", HTTP_POST, [](AsyncWebServerRequest *req){},
         nullptr,

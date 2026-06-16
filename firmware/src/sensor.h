@@ -28,12 +28,27 @@ inline void sensorSetLED(uint8_t mA) {
 #endif
 }
 
+inline void sensorSetConfig(float integrationMs, uint8_t gainIdx) {
+#ifdef AS7341_REAL
+    static const as7341_gain_t gains[] = {
+        AS7341_GAIN_0_5X, AS7341_GAIN_1X,  AS7341_GAIN_2X,   AS7341_GAIN_4X,
+        AS7341_GAIN_8X,   AS7341_GAIN_16X, AS7341_GAIN_32X,  AS7341_GAIN_64X,
+        AS7341_GAIN_128X, AS7341_GAIN_256X, AS7341_GAIN_512X
+    };
+    if (gainIdx > 10) gainIdx = 10;
+    // ASTEP fixo em 999 → cada tick = 2.78ms; ATIME define quantos ticks
+    uint8_t atime = (uint8_t)constrain((int)round(integrationMs / 2.78f) - 1, 0, 255);
+    _as7341.setATIME(atime);
+    _as7341.setGain(gains[gainIdx]);
+#endif
+}
+
 inline bool sensorBegin() {
 #ifdef AS7341_REAL
     if (!_as7341.begin()) return false;
-    _as7341.setATIME(100);
+    _as7341.setATIME(29);
     _as7341.setASTEP(999);
-    _as7341.setGain(AS7341_GAIN_256X);
+    _as7341.setGain(AS7341_GAIN_16X);
     _as7341.enableLED(true);
     _as7341.setLEDCurrent(10);
     return true;
