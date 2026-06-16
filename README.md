@@ -127,12 +127,21 @@ With the serial monitor open at 115200 baud:
 
 Connect to the Wi-Fi network configured in `config.h` and open the IP shown on the display or serial monitor.
 
-- **Plate configuration** — set rows, columns and well spacing (default: 12×12, 15 mm)
+- **Plate configuration** — set rows, columns and well spacing (default: 6×6, 15 mm)
 - **Well selection** — click wells on the grid to select which ones will be scanned
 - **Points per well** — number of sampling points, margin and well size; SVG preview shows point distribution
 - **Manual jog** — move X and Y in steps of 0.1, 1, 5 or 10 mm
+- **Sensor configuration** — LED current (4–258 mA), integration time (16–4000 ms) and gain (0.5× to 512×) adjustable in real time
 - **Scan** — start scanning selected wells with a real-time progress bar
-- **Results** — table with individual readings per point for all 8 AS7341 channels, with CSV export
+- **Results** — table with readings for all 10 AS7341 channels (8 spectral + Clear + NIR), CSV export button above the table
+
+### AS7341 Sensor Parameters
+
+| Parameter | Default | Range | Notes |
+|---|---|---|---|
+| LED current | 10 mA | 4–258 mA | Hardware minimum of 4 mA |
+| Integration time | 78 ms | 16–4000 ms | Resolution: ~16 ms per step |
+| Gain | 16× | 0.5×–512× | Reduce if channels saturate |
 
 ## REST API
 
@@ -141,5 +150,7 @@ Connect to the Wi-Fi network configured in `config.h` and open the IP shown on t
 | `GET` | `/api/status` | Current position, scan state and progress |
 | `POST` | `/api/cmd` | Send serial command (`e`, `d`, `h`, `x <mm>`, `y <mm>`) |
 | `POST` | `/api/move` | Move relatively in X and/or Y (JSON: `{x, y}` in mm) |
-| `POST` | `/api/scan` | Start scan (JSON: `{wells, spacingX, spacingY, points}`) |
-| `GET` | `/api/results` | Return individual point readings for each scanned well |
+| `POST` | `/api/scan` | Start scan (JSON: `{wells, spacingX, spacingY, points, avgMode}`) |
+| `GET` | `/api/results` | Return readings for each scanned well (all 10 channels) |
+| `POST` | `/api/led` | Set LED current in mA (JSON: `{mA}`, range: 4–258) |
+| `POST` | `/api/sensor` | Set integration time and gain (JSON: `{ms, gain}`) |
